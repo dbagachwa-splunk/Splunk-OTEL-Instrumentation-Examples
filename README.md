@@ -27,31 +27,20 @@ Before instrumenting applications, the Collector must be running in your cluster
 ### 1.1 Configuration (`splunk-values.yaml`)
 Create a file named `splunk-values.yaml`. This file configures the collector to route data to both Splunk platforms.
 
-```yaml
-cloudProvider: azure
-distribution: aks
-clusterName: <YOUR_CLUSTER_NAME>
-environment: <YOUR_ENV_NAME>
+### 1.2 Deployment Script (deploy_splunk_otel.sh)
+Use this script to automate the deployment. It creates the necessary Kubernetes secrets and installs the collector via Helm.
 
-splunkObservability:
-  realm: <YOUR_REALM>
-  profilingEnabled: true
+## Step 2: Language Specific Examples
 
-splunkPlatform:
-  # Logs are routed here via HEC
-  endpoint: "https://<YOUR_SPLUNK_HEC_URL>/services/collector/event"
-  index: "<YOUR_LOG_INDEX>"
-  source: "kubernetes"
-  insecureSkipVerify: true
+### Navigate to the folders below to see how to bake the OTel SDK into your container images:
 
-gateway:
-  enabled: false
+* Node.js - Using npm install and NODE_OPTIONS.
+* .NET - Using the CLR Profiler and Alpine/Musl support.
+* Python - Using opentelemetry-instrument wrapper.
+* Java - Using the -javaagent JVM argument.
 
-operator:
-  # Set to true if you want to use the operator for other apps, 
-  # but manual apps will ignore it.
-  enabled: true
+## Step 3: Deploy Application using the deploy_manual_language.sh script
 
-agent:
-  discovery:
-    enabled: true
+## Step 4: Run the simulate traffic script to generate traffic to capture traces
+
+## Step 5: Validate K8s Infrastructure metrics and APM traces are showing up in Splunk Observability. Check for logs in Splunk Cloud/Enterprise
