@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manual-dotnet-app
+  namespace: lab-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: manual-dotnet-app
+  template:
+    metadata:
+      labels:
+        app: manual-dotnet-app
+    spec:
+      containers:
+      - name: dotnet-app
+        image: dbagachw391/dotnet-otel:v1
+        ports:
+        - containerPort: 8080
+        env:
+        # 1. Get Node IP 
+        - name: SPLUNK_OTEL_AGENT
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        
+        # 2. Point to Collector on Node (Port 4318 for HTTP)
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://$(SPLUNK_OTEL_AGENT):4318"
+        
+        # 3. Standard OTel Variables
+        - name: OTEL_SERVICE_NAME
+          value: "manual-dotnet-app-dba"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "deployment.environment=azure-dba-dev,service.version=1.0"
+        
+        # 4. Splunk Profiler 
+        - name: SPLUNK_PROFILER_ENABLED
+          value: "true"
+        - name: SPLUNK_PROFILER_MEMORY_ENABLED
+          value: "true"
+        
+        - name: OTEL_TRACES_EXPORTER
+          value: "otlp"
