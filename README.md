@@ -21,16 +21,15 @@ The Splunk OTel Operator must be enabled during the collector deployment to list
 ### 1.1 Configure the Deployment Script
 Ensure the following variable is set to `true` in your `deploy_splunk_otel.sh` script (located in the root directory):
 
-```bash
+bash
 USE_OPERATOR="true"
-
+---
 
 ### 1.2 Execute Deployment
 
 Run the script to install the collector and the Operator CRDs:
 
-```bash
-./deploy_splunk_otel.sh
+`./deploy_splunk_otel.sh`
 
 ## Step 2: Deploy Applications
 
@@ -40,23 +39,21 @@ The script automatically adds the required Kubernetes Annotations to the deploym
 
 Example Annotation (.NET):
 
-```yaml
+`
 annotations:
   instrumentation.opentelemetry.io/inject-dotnet: "default/splunk-otel-collector"
-  instrumentation.opentelemetry.io/otel-dotnet-auto-runtime: "linux-musl-x64"
+  instrumentation.opentelemetry.io/otel-dotnet-auto-runtime: "linux-musl-x64"`
 
 Run the Deployment Script:
-```bash
-./deploy_operator_apps.sh
 
+`./deploy_operator_apps.sh`
 
 
 ## Step 3: Simulate Traffic
 
 Once the pods are in a Running state, the Operator has already performed the "Magic" injection. Use the simulation script to generate HTTP traffic and trigger traces.
 
-```bash
-./simulate_traffic.sh
+`./simulate_traffic.sh`
 
 
 ## Step 4: Validation
@@ -65,8 +62,8 @@ Once the pods are in a Running state, the Operator has already performed the "Ma
 
 Pick any pod and verify that the Splunk Operator has added an Init Container and the necessary Environment Variables:
 
-```bash
-kubectl describe pod -n lab-apps -l app=java-app
+`kubectl describe pod -n lab-apps -l app=java-app`
+
 
 Look for: Init Containers: opentelemetry-auto-instrumentation-java
 Look for: JAVA_TOOL_OPTIONS: -javaagent:/otel-auto-instrumentation/javaagent.jar
@@ -82,5 +79,5 @@ Confirm that java-app-dba, python-app-dba, dotnet-app-dba, and nodejs-app-dba ar
 
 Log in to your Splunk Cloud/Enterprise instance and search the index specified in your splunk-values.yaml to confirm Kubernetes logs are flowing correctly
 
-```splunk
-index="db_gcp_dev" sourcetype="kube:container:*"
+`index="db_gcp_dev" sourcetype="kube:container:*"`
+
