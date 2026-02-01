@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manual-node-app
+  namespace: lab-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: manual-node-app
+  template:
+    metadata:
+      labels:
+        app: manual-node-app
+    spec:
+      containers:
+      - name: node-app
+        image: dbagachw391/nodejs-otel:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        # 1. Get the IP of the Node (Downward API)
+        - name: SPLUNK_OTEL_AGENT
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        
+        # 2. Point to the Collector on that Node (Port 4318)
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://$(SPLUNK_OTEL_AGENT):4318"
+        
+        # 3. Standard OTel Variables
+        - name: OTEL_SERVICE_NAME
+          value: "manual-node-app-dba"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "deployment.environment=azure-dba-dev,service.version=1.0"
+        
+        # 4. Profiler Config
+        - name: SPLUNK_PROFILER_ENABLED
+          value: "true"
+        - name: SPLUNK_PROFILER_MEMORY_ENABLED
+          value: "true"
+        - name: SPLUNK_METRICS_ENABLED
+          value: "true"
+        - name: SPLUNK_AUTOMATIC_LOG_COLLECTION
+          value: "true"
+        
+        - name: OTEL_TRACES_EXPORTER
+          value: "otlp"
