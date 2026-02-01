@@ -1,0 +1,37 @@
+---
+
+### 2. `splunk-values.yaml` (Template)
+Place this in the root of your repo.
+
+```yaml
+# splunk-values.yaml
+# Purpose: Configure Splunk OTel Collector for Hybrid Routing
+# Metrics/Traces -> Splunk O11y Cloud
+# Logs -> Splunk Cloud/Enterprise
+
+cloudProvider: azure
+distribution: aks
+clusterName: otel-test-cluster # Override via script
+environment: dev               # Override via script
+
+splunkObservability:
+  realm: us1
+  profilingEnabled: true
+  # accessToken is passed via --set in the deploy script
+
+splunkPlatform:
+  endpoint: "" # Set your HEC Endpoint here
+  index: ""    # Set your destination index for logs
+  source: "kubernetes"
+  insecureSkipVerify: true
+  # token is passed via --set in the deploy script
+
+gateway:
+  enabled: false
+
+operator:
+  enabled: true
+
+agent:
+  discovery:
+    enabled: true
