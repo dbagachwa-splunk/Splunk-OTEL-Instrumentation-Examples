@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manual-java-app
+  namespace: lab-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: manual-java-app
+  template:
+    metadata:
+      labels:
+        app: manual-java-app
+    spec:
+      containers:
+      - name: java-app
+        image: dbagachw391/java-otel:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        # 1. Get the IP of the Node (Host)
+        - name: SPLUNK_OTEL_AGENT
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        
+        # 2. Point to the Collector on that Node (Port 4318 for HTTP/Protobuf)
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://$(SPLUNK_OTEL_AGENT):4318"
+        
+        # 3. Standard OTel variables
+        - name: OTEL_SERVICE_NAME
+          value: "manual-java-app-dba"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "deployment.environment=azure-dba-dev"
+        - name: OTEL_TRACES_EXPORTER
+          value: "otlp"
